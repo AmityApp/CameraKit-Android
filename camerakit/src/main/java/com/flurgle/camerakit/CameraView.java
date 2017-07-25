@@ -189,10 +189,10 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         super.onAttachedToWindow();
         if (!isInEditMode()) {
             mDisplayOrientationDetector.enable(
-                ViewCompat.isAttachedToWindow(this)
-                    ? DisplayManagerCompat.getInstance(getContext())
-                    .getDisplay(Display.DEFAULT_DISPLAY)
-                    : null
+                    ViewCompat.isAttachedToWindow(this)
+                            ? DisplayManagerCompat.getInstance(getContext())
+                            .getDisplay(Display.DEFAULT_DISPLAY)
+                            : null
             );
         }
     }
@@ -303,7 +303,11 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         sWorkerHandler.post(new Runnable() {
             @Override
             public void run() {
-                mCameraImpl.start();
+                try {
+                    mCameraImpl.start();
+                } catch (Exception e) {
+                    mCameraListener.onCameraError(e);
+                }
             }
         });
     }
@@ -485,6 +489,12 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         public void onCameraClosed() {
             super.onCameraClosed();
             getCameraListener().onCameraClosed();
+        }
+
+        @Override
+        public void onCameraError(Throwable throwable) {
+            super.onCameraError(throwable);
+            getCameraListener().onCameraError(throwable);
         }
 
         @Override
